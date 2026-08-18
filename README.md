@@ -14,7 +14,10 @@ Ansible playbooks for managing the synchronization state of the nodes
 ### Helper
 Various help files and scripts
 
-### `dynamic-motd.sh`
+### chrony configs
+`chronyd.conf` files for various test scenarios
+
+#### `dynamic-motd.sh`
 Put in `/etc/profile.d` to create a small banner on login to show info about the system and current test scenario.  Example
 ```
 ==================================================
