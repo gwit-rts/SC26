@@ -1,0 +1,33 @@
+---
+- name: Switch time synchronization from timemaster to chronyd - best case (HPS100 as NTP source)
+  hosts: GWsync-nodes
+  become: true
+  gather_facts: False
+
+  tasks:
+    - name: Create symlink for chrony configuration (best case)
+      ansible.builtin.file:
+        src: /etc/000chrony-configs/best_case-chrony.conf
+        dest: /etc/chrony.conf
+        state: link
+        force: true
+
+    - name: Stop and disable timemaster service
+      ansible.builtin.systemd:
+        name: timemaster
+        state: stopped
+        enabled: false
+
+    - name: Start and enable chronyd service
+      ansible.builtin.systemd:
+        name: chronyd
+        state: started
+        enabled: true
+
+    - name: Write current test case file
+      ansible.builtin.copy:
+        dest: /var/lib/misc/current-test-case
+        content: "NTP - Best Case\n"
+        owner: root
+        group: root
+        mode: '0644'

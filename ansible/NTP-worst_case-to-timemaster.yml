@@ -1,0 +1,33 @@
+---
+- name: Switch to Timemaster
+  hosts: GWsync-nodes
+  become: true
+  gather_facts: False
+
+  tasks:
+    - name: Create symlink for chrony configuration (using NTP servers with timemaster)
+      ansible.builtin.file:
+        src: /etc/000chrony-configs/use-with-timemaster.conf 
+        dest: /etc/chrony.conf
+        state: link
+        force: true
+
+    - name: Stop and disable chronyd service
+      ansible.builtin.systemd:
+        name: chronyd
+        state: stopped
+        enabled: false
+
+    - name: Start and enable timemaster service
+      ansible.builtin.systemd:
+        name: timemaster
+        state: started
+        enabled: true
+
+    - name: Write current test case file
+      ansible.builtin.copy:
+        dest: /var/lib/misc/current-test-case
+        content: "PTP\n"
+        owner: root
+        group: root
+        mode: '0644'

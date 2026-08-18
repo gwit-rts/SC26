@@ -1,0 +1,33 @@
+---
+- name: Configure chrony symlink and restart chronyd - NTP default case (I2 reachable servers)
+  hosts: GWsync-nodes
+  become: true
+  gather_facts: False
+
+  tasks:
+    - name: Create symlink for chrony configuration (default case)
+      ansible.builtin.file:
+        src: /etc/000chrony-configs/default_case-chrony.conf
+        dest: /etc/chrony.conf
+        state: link
+        force: true
+
+    - name: Stop chronyd service
+      ansible.builtin.systemd:
+        name: chronyd
+        state: stopped
+        enabled: false
+
+    - name: Start and enable chronyd service
+      ansible.builtin.systemd:
+        name: chronyd
+        state: started
+        enabled: true
+
+    - name: Write current test case file
+      ansible.builtin.copy:
+        dest: /var/lib/misc/current-test-case
+        content: "NTP Default Case\n"
+        owner: root
+        group: root
+        mode: '0644'
