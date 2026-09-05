@@ -7,7 +7,7 @@ HOSTNAME=$(hostname -f 2>/dev/null || hostname)
 CURRENT_TIME=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
 # read what test we're running
-read -r CURRENT_TEST < /var/lib/misc/current-test-case
+read -r CURRENT_TEST < <(grep -vE '^(#|$)' /var/lib/misc/current-test-case)
 
 # Currently selected Chrony source
 CHRONY_SOURCE=$(chronyc -n sources 2>/dev/null | awk '$1 ~ /^[#^]\*/ {print $2}')
