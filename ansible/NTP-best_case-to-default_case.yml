@@ -18,6 +18,32 @@
         state: stopped
         enabled: false
 
+    - name: Generate timestamp
+      ansible.builtin.command: date +%Y%m%d-%H%M
+      register: chrony_timestamp
+      changed_when: false
+
+
+    - name: Check for chrony log files
+      ansible.builtin.stat:
+        path: "/var/log/chrony/{{ item }}"
+      loop:
+        - measurements.log
+        - statistics.log
+        - tracking.log
+      register: chrony_logs
+    
+    - name: Archive chrony log files
+      ansible.builtin.copy:
+        src: "/var/log/chrony/{{ item.item }}"
+        dest: "/var/log/chrony/archive/PTP/{{ item.item | regex_replace('\\.log$', '') }}-{{ chrony_timestamp.stdout }}.log"
+        remote_src: true
+        owner: chrony
+        group: chrony
+        mode: '0644'
+      loop: "{{ chrony_logs.results }}"
+      when: item.stat.exists
+
     - name: Start and enable chronyd service
       ansible.builtin.systemd:
         name: chronyd
